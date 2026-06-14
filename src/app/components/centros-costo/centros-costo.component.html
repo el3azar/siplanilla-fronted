@@ -1,0 +1,51 @@
+<div class="page-toolbar">
+  <div style="display:flex;align-items:center;gap:0.75rem">
+    <label style="font-size:0.875rem;color:var(--foreground);font-weight:500">Año:</label>
+    <select class="form-select" style="width:100px" [value]="anio()" (change)="anio.set(+$any($event.target).value)">
+      <option value="2024">2024</option>
+      <option value="2025">2025</option>
+      <option value="2026">2026</option>
+    </select>
+  </div>
+  <button class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    Nuevo Centro de Costo
+  </button>
+</div>
+
+<!-- Resumen -->
+<div class="cc-resumen">
+  @for (r of resumen; track r.label) {
+    <div class="cc-resumen-card" [style.border-color]="r.bg" [style.background]="r.bg">
+      <p class="cc-resumen-card__label">{{ r.label }}</p>
+      <p class="cc-resumen-card__value" [style.color]="r.color">{{ r.value }}</p>
+    </div>
+  }
+</div>
+
+<!-- Tabla -->
+<div class="card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Unidad Organizacional</th>
+        <th>Año</th>
+        <th>Presupuesto</th>
+        <th>Ejecutado</th>
+        <th>Disponible</th>
+        <th>% Ejec.</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @if (centros.length === 0) {
+        <tr>
+          <td colspan="8" style="text-align:center;color:var(--muted-foreground);padding:2rem">
+            No hay centros de costo para {{ anio() }}.
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>

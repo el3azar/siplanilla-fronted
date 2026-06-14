@@ -1,0 +1,24 @@
+.cc-resumen {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+.cc-resumen-card {
+  border: 1px solid;
+  border-radius: 0.5rem;
+  padding: 1.25rem 1.5rem;
+}
+.cc-resumen-card__label {
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.5rem;
+}
+.cc-resumen-card__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+}

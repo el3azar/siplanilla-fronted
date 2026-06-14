@@ -1,0 +1,71 @@
+<div class="page-toolbar">
+  <p style="font-size:0.875rem;color:var(--muted-foreground);margin:0">
+    {{ planillas.length }} planilla(s) registrada(s). Periodicidad: <strong>Mensual.</strong>
+  </p>
+  <button class="btn btn-primary">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+    Nueva Planilla
+  </button>
+</div>
+
+@for (p of planillas; track p.titulo; let i = $index) {
+  <div class="pla-card card">
+    <!-- Header de la planilla -->
+    <div class="pla-header" (click)="toggle(i)">
+      <button class="eo-expand">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="eo-expand__icon" [class.eo-expand__icon--open]="expandida() === i">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+        </svg>
+      </button>
+      <div class="pla-header__info">
+        <h3 class="pla-header__titulo">{{ p.titulo }}</h3>
+        <p class="pla-header__fecha">{{ p.fecha }}</p>
+      </div>
+      <div class="pla-header__right">
+        <span class="badge badge-green">{{ p.estado }}</span>
+        <div class="pla-montos">
+          <div>
+            <span class="pla-montos__label">Neto total</span>
+            <span class="pla-montos__val" style="color:var(--accent-foreground)">{{ p.netoTotal }}</span>
+          </div>
+          <div>
+            <span class="pla-montos__label">Costo empresa</span>
+            <span class="pla-montos__val" style="color:var(--destructive)">{{ p.costoEmpresa }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detalles expandibles -->
+    @if (expandida() === i) {
+      <div class="pla-detalle">
+        <div class="pla-stats">
+          <div class="pla-stat">
+            <span class="pla-stat__label">EMPLEADOS</span>
+            <span class="pla-stat__val" style="color:var(--accent-foreground)">{{ p.empleados }}</span>
+          </div>
+          <div class="pla-stat">
+            <span class="pla-stat__label">TOTAL BRUTO</span>
+            <span class="pla-stat__val">{{ p.totalBruto }}</span>
+          </div>
+          <div class="pla-stat">
+            <span class="pla-stat__label">ISSS PATRONAL</span>
+            <span class="pla-stat__val" style="color:var(--accent-foreground)">{{ p.isssPatronal }}</span>
+          </div>
+          <div class="pla-stat">
+            <span class="pla-stat__label">AFP PATRONAL</span>
+            <span class="pla-stat__val" style="color:#8b5cf6">{{ p.afpPatronal }}</span>
+          </div>
+          <div class="pla-stat">
+            <span class="pla-stat__label">ISR RETENIDO</span>
+            <span class="pla-stat__val" style="color:#f59e0b">{{ p.isrRetenido }}</span>
+          </div>
+        </div>
+        <div style="display:flex;gap:0.5rem;padding:1rem 1.5rem;border-top:1px solid var(--border)">
+          <a [routerLink]="['/planilla', 1]" class="btn btn-outline-primary btn-sm">Ver detalle</a>
+          <button class="btn btn-outline btn-sm">Exportar PDF</button>
+        </div>
+      </div>
+    }
+  </div>
+}

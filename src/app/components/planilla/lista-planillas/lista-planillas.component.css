@@ -1,0 +1,33 @@
+.pla-card { margin-bottom: 1rem; overflow: hidden; }
+
+.pla-header {
+  display: flex; align-items: center; gap: 1rem;
+  padding: 1.25rem 1.5rem; cursor: pointer;
+}
+.pla-header:hover { background: var(--muted); }
+
+.pla-header__info { flex: 1; }
+.pla-header__titulo { font-size: 1rem; font-weight: 600; margin: 0 0 0.25rem; }
+.pla-header__fecha  { font-size: 0.8rem; color: var(--muted-foreground); margin: 0; }
+
+.pla-header__right {
+  display: flex; align-items: center; gap: 1.5rem;
+}
+.pla-montos { display: flex; gap: 2rem; }
+.pla-montos__label { display: block; font-size: 0.72rem; color: var(--muted-foreground); text-align: right; }
+.pla-montos__val   { display: block; font-size: 1rem; font-weight: 700; text-align: right; }
+
+.pla-detalle { border-top: 1px solid var(--border); }
+.pla-stats {
+  display: flex; gap: 0; padding: 1.25rem 1.5rem;
+}
+.pla-stat {
+  flex: 1; border-right: 1px solid var(--border); padding-right: 1.5rem; margin-right: 1.5rem;
+}
+.pla-stat:last-child { border-right: none; padding-right: 0; margin-right: 0; }
+.pla-stat__label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--muted-foreground); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.25rem; }
+.pla-stat__val   { display: block; font-size: 1.1rem; font-weight: 700; color: var(--foreground); }
+
+.eo-expand { background:none;border:none;cursor:pointer;display:flex;align-items:center;padding:0.25rem;color:var(--muted-foreground); }
+.eo-expand__icon { width:1rem;height:1rem;transition:transform 0.2s; }
+.eo-expand__icon--open { transform:rotate(90deg); }

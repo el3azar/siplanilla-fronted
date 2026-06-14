@@ -1,0 +1,17 @@
+.fe-header {
+  display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+}
+.fe-header__title { font-size: 1.1rem; font-weight: 600; margin: 0; color: var(--foreground); }
+
+.fe-form { display: flex; flex-direction: column; gap: 1.25rem; }
+
+.fe-section { padding: 1.5rem; }
+
+.fe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.fe-field { display: flex; flex-direction: column; }
+.fe-field--full { grid-column: 1 / -1; }
+
+.fe-footer {
+  display: flex; justify-content: flex-end; gap: 0.75rem;
+  padding: 1rem 0;
+}
