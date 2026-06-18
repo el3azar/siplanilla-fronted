@@ -1,49 +1,83 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { DetallePlanillaService } from '../../core/services/detalle-planilla.service';
+import { DescuentoService } from '../../core/services/descuento.service';
+import { IngresoService } from '../../core/services/ingreso.service';
+import { DetallePlanilla } from '../../core/models/detalle-planilla.model';
+import { Descuento } from '../../core/models/descuento.model';
+import { Ingreso } from '../../core/models/ingreso.model';
 
 @Component({
   selector: 'app-boletas-pago',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './boletas-pago.component.html',
-  styleUrl: './boletas-pago.component.css'
+  styleUrl: './boletas-pago.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class BoletasPagoComponent {
-  empleadoSel = signal('martinez');
-  periodoSel  = signal('mayo2024');
+export class BoletasPagoComponent implements OnInit {
 
-  empleados = [
-    { id: 'martinez', label: 'Martínez Carlos — 01234567-8' },
-    { id: 'gonzalez', label: 'González María Elena — 02345678-9' },
-    { id: 'rodriguez',label: 'Rodríguez José Antonio — 03456789-0' },
-  ];
-  periodos = [
-    { id: 'mayo2024', label: 'Mayo 2024 — pagada' },
-    { id: 'abril2024',label: 'Abril 2024 — pagada' },
-  ];
+  detalles: DetallePlanilla[] = [];
+  detalleSeleccionado: DetallePlanilla | null = null;
+  ingresos: Ingreso[] = [];
+  descuentos: Descuento[] = [];
+  cargando = false;
 
-  boleta = {
-    empresa: 'Corporación Empresarial S.A. de C.V.',
-    direccion: 'Blvd. del Ejército Nacional Km. 5, Zona Industrial, San Salvador',
-    nit: '0614-100195-001-5', nic: 'NIC-2024-001234',
-    telefono: '2222-3333', correo: 'info@corporacionempresarial.com.sv',
-    periodo: 'Mayo 2024',
-    repLegal: 'Carlos Roberto Martínez Herrera',
-    empleado: {
-      nombre: 'Martínez Herrera Carlos Roberto',
-      dui: 'DUI: 01234567-8', nit: '0614-151075-001-5',
-      isss: '123456789', nup: 'NUP-123456789',
-      puesto: 'Gerente General', unidad: 'Gerencia General',
-      ingreso: '05/01/2010',
-    },
-    ingresos:   [{ concepto: 'Salario Base', monto: '$4,500.00' }],
-    descuentos: [
-      { concepto: 'ISSS Laboral (3%)',        monto: '$30.00'    },
-      { concepto: 'AFP – Pensiones (7.25%)',   monto: '$326.25'   },
-      { concepto: 'Impuesto sobre la Renta (ISR)', monto: '$775.79' },
-    ],
-    totalIngresos:   '$4,500.00',
-    totalDescuentos: '$1,132.04',
-    salarioNeto:     '$3,367.96',
-    isssPatronal: '$375.00', afpPatronal: '$382.50', costoTotal: '$4,500.00',
-  };
+  constructor(
+    private detallePlanillaService: DetallePlanillaService,
+    private descuentoService: DescuentoService,
+    private ingresoService: IngresoService,
+    private cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit() {
+    this.detallePlanillaService.getAll().subscribe(data => {
+      console.log('Detalles recibidos:', data); // ← revisá esto en consola
+      this.detalles = data;
+      this.cdr.markForCheck();
+    });
+  }
+
+  estaActivo(detalle: DetallePlanilla): boolean {
+    return this.detalleSeleccionado?.idDetallePlanilla === detalle.idDetallePlanilla;
+  }
+
+  seleccionarEmpleado(detalle: DetallePlanilla) {
+    this.cargando = true;
+    this.detalleSeleccionado = detalle;
+    this.ingresos = [];
+    this.descuentos = [];
+
+    this.ingresoService.getByDetalle(detalle.idDetallePlanilla).subscribe(data => {
+      this.ingresos = data;
+      this.cdr.markForCheck();
+    });
+
+    this.descuentoService.getByDetalle(detalle.idDetallePlanilla).subscribe(data => {
+      this.descuentos = data;
+      this.cargando = false;
+      this.cdr.markForCheck();
+      setTimeout(() => {
+        document.getElementById('boleta-print')?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    });
+  }
+
+  imprimir() {
+    window.print();
+  }
+
+  cerrarBoleta() {
+  this.detalleSeleccionado = null;
+  this.ingresos = [];
+  this.descuentos = [];
+  this.cdr.markForCheck();
+}
+
+cerrarModal(event: MouseEvent) {
+  // cierra si se hace click en el fondo oscuro, no en el contenido
+  if ((event.target as HTMLElement).classList.contains('bol-modal-overlay')) {
+    this.cerrarBoleta();
+  }
+}
 }

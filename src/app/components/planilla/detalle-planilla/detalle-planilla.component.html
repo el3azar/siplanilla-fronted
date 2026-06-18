@@ -12,8 +12,17 @@
   <!-- Panel izquierdo -->
   <div class="dp-panel dp-panel--left">
     <h2 class="dp-panel__title">Empleados</h2>
+
+    <!-- Buscador -->
+    <div class="dp-busqueda">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+      </svg>
+      <input type="text" placeholder="Buscar empleado..." [(ngModel)]="busqueda" class="dp-busqueda__input"/>
+    </div>
+
     <div class="dp-list">
-      @for (detalle of detalles; track detalle.idDetallePlanilla) {
+      @for (detalle of detallesFiltrados(); track detalle.idDetallePlanilla) {
         <div class="dp-item"
              [class.dp-item--active]="detalleSeleccionado?.idDetallePlanilla === detalle.idDetallePlanilla"
              (click)="seleccionarEmpleado(detalle)">

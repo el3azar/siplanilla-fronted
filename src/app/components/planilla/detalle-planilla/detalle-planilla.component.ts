@@ -25,6 +25,7 @@ export class DetallePlanillaComponent implements OnInit {
 
   detalles: DetallePlanilla[] = [];
   detalleSeleccionado: DetallePlanilla | null = null;
+  busqueda = '';  
 
   // Descuentos
   descuentos: Descuento[] = [];
@@ -69,6 +70,15 @@ export class DetallePlanillaComponent implements OnInit {
     this.cargarDetalles();
     this.cargarTiposDescuento();
     this.cargarTiposIngreso();
+  }
+
+  // ← NUEVO
+  detallesFiltrados(): DetallePlanilla[] {
+    if (!this.busqueda.trim()) return this.detalles;
+    const texto = this.busqueda.toLowerCase();
+    return this.detalles.filter(d =>
+      d.nombreEmpleado?.toLowerCase().includes(texto)
+    );
   }
 
   cargarDetalles() {
