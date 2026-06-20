@@ -386,3 +386,35 @@
   }
 }
 }
+
+.bol-resumen__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bol-resumen__header .bol-resumen__titulo {
+  margin: 0;
+}
+
+.bol-buscador {
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  font-size: 0.85rem;
+  min-width: 260px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.bol-buscador:focus {
+  border-color: var(--primary);
+}
+
+.bol-sin-resultados {
+  text-align: center;
+  color: var(--muted-foreground);
+  padding: 1.5rem 1rem !important;
+}

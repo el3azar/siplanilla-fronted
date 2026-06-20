@@ -1,6 +1,15 @@
 <!-- Tabla resumen -->
 <div class="bol-resumen card">
-  <h2 class="bol-resumen__titulo">Listado de Empleados</h2>
+  <div class="bol-resumen__header">
+    <h2 class="bol-resumen__titulo">Listado de Empleados</h2>
+    <input
+      type="text"
+      class="bol-buscador"
+      placeholder="Buscar por nombre o período..."
+      [value]="terminoBusqueda"
+      (input)="onBuscar($any($event.target).value)"
+    />
+  </div>
   <table class="bol-tabla-resumen">
     <thead>
       <tr>
@@ -14,7 +23,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (d of detalles; track d.idDetallePlanilla) {
+      @for (d of detallesFiltrados; track d.idDetallePlanilla) {
         <tr [class.bol-fila--activa]="estaActivo(d)">
           <td class="bol-fila__nombre">{{ d.nombreEmpleado }}</td>
           <td>{{ d.periodo }}</td>
@@ -25,6 +34,11 @@
           <td>
             <button class="btn btn-primary btn-sm-text" (click)="seleccionarEmpleado(d)">Ver boleta</button>
           </td>
+        </tr>
+      }
+      @if (detallesFiltrados.length === 0) {
+        <tr>
+          <td colspan="7" class="bol-sin-resultados">No se encontraron empleados.</td>
         </tr>
       }
     </tbody>

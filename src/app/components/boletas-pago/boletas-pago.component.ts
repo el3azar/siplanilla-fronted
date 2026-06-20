@@ -22,6 +22,7 @@ export class BoletasPagoComponent implements OnInit {
   ingresos: Ingreso[] = [];
   descuentos: Descuento[] = [];
   cargando = false;
+  terminoBusqueda = '';
 
   constructor(
     private detallePlanillaService: DetallePlanillaService,
@@ -29,6 +30,28 @@ export class BoletasPagoComponent implements OnInit {
     private ingresoService: IngresoService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  private normalizar(texto: string): string {
+    return texto
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
+
+  get detallesFiltrados(): DetallePlanilla[] {
+    const termino = this.normalizar(this.terminoBusqueda);
+    if (!termino) return this.detalles;
+    return this.detalles.filter(d =>
+      this.normalizar(d.nombreEmpleado).includes(termino) ||
+      this.normalizar(d.periodo).includes(termino)
+    );
+  }
+
+  onBuscar(valor: string) {
+    this.terminoBusqueda = valor;
+    this.cdr.markForCheck();
+  }
 
   ngOnInit() {
     this.detallePlanillaService.getAll().subscribe(data => {
@@ -68,16 +91,16 @@ export class BoletasPagoComponent implements OnInit {
   }
 
   cerrarBoleta() {
-  this.detalleSeleccionado = null;
-  this.ingresos = [];
-  this.descuentos = [];
-  this.cdr.markForCheck();
-}
-
-cerrarModal(event: MouseEvent) {
-  // cierra si se hace click en el fondo oscuro, no en el contenido
-  if ((event.target as HTMLElement).classList.contains('bol-modal-overlay')) {
-    this.cerrarBoleta();
+    this.detalleSeleccionado = null;
+    this.ingresos = [];
+    this.descuentos = [];
+    this.cdr.markForCheck();
   }
-}
+
+  cerrarModal(event: MouseEvent) {
+    // cierra si se hace click en el fondo oscuro, no en el contenido
+    if ((event.target as HTMLElement).classList.contains('bol-modal-overlay')) {
+      this.cerrarBoleta();
+    }
+  }
 }
