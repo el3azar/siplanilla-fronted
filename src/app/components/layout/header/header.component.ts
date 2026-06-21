@@ -1,6 +1,7 @@
 import { Component, inject, signal, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-header',
@@ -11,6 +12,7 @@ import { filter } from 'rxjs/operators';
 })
 export class HeaderComponent implements OnDestroy {
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   private readonly routeTitles: Record<string, string> = {
     '/dashboard': 'Dashboard',
@@ -44,6 +46,11 @@ export class HeaderComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     clearInterval(this.clockInterval);
+  }
+
+  logout(): void {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 
   private resolveTitle(url: string): string {

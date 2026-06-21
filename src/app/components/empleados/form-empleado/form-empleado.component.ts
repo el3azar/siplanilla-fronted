@@ -22,6 +22,7 @@ export class FormEmpleadoComponent implements OnInit {
   
   empleadoId: number | null = null;
   isEditing = false;
+  datosOriginales: any = null; // Para guardar datos originales en modo edición
 
   // Catálogos
   sexos = signal<Catalogo[]>([]);
@@ -167,6 +168,9 @@ export class FormEmpleadoComponent implements OnInit {
   }
 
   mapearDatosAlFormulario(datos: EmpleadoResponse): void {
+    // Guardar datos originales para comparar cambios
+    this.datosOriginales = { ...datos };
+    
     this.form.patchValue({
       empNombre: datos.emp_nombre,
       empApellido: datos.emp_apellido,
@@ -196,18 +200,35 @@ export class FormEmpleadoComponent implements OnInit {
   }
 
   guardar(): void {
-    if (!this.form.valid) {
-      this.errorMessage.set('Por favor complete todos los campos requeridos');
-      return;
-    }
-
     this.isSaving.set(true);
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    const datos: CreateEmpleadoRequest = this.normalizarDatos(this.form.value);
+    let datos: any;
     
-    console.log('📤 Datos a enviar:', JSON.stringify(datos, null, 2));
+    if (this.isEditing && this.empleadoId) {
+      // En modo edición: enviar solo los campos que cambiaron
+      // NO validar todo el formulario, permitir cambios parciales
+      datos = this.obtenerCambios();
+      
+      if (Object.keys(datos).length === 0) {
+        this.errorMessage.set('No hay cambios para guardar');
+        this.isSaving.set(false);
+        return;
+      }
+      
+      console.log('📤 Cambios a enviar (PATCH):', JSON.stringify(datos, null, 2));
+    } else {
+      // En modo creación: validar que todos los campos estén completos
+      if (!this.form.valid) {
+        this.errorMessage.set('Por favor complete todos los campos requeridos');
+        this.isSaving.set(false);
+        return;
+      }
+      
+      datos = this.normalizarDatos(this.form.value);
+      console.log('📤 Datos a enviar (POST):', JSON.stringify(datos, null, 2));
+    }
 
     const peticion = this.isEditing && this.empleadoId
       ? this.empleadoService.actualizarEmpleado(this.empleadoId, datos)
@@ -233,6 +254,73 @@ export class FormEmpleadoComponent implements OnInit {
         this.isSaving.set(false);
       }
     });
+  }
+
+  obtenerCambios(): Partial<CreateEmpleadoRequest> {
+    const datosActuales = this.normalizarDatos(this.form.value);
+    const cambios: any = {};
+
+    // Mapear campos para comparación
+    const camposAComparar: any = {
+      emp_nombre: this.datosOriginales?.emp_nombre,
+      emp_apellido: this.datosOriginales?.emp_apellido,
+      emp_dui: this.datosOriginales?.emp_dui,
+      emp_nit: this.datosOriginales?.emp_nit,
+      emp_nup: this.datosOriginales?.emp_nup,
+      emp_isss: this.datosOriginales?.emp_isss,
+      emp_fecha_nacimiento: this.datosOriginales?.emp_fecha_nacimiento,
+      emp_fecha_ingreso: this.datosOriginales?.emp_fecha_ingreso,
+      emp_salario_base: this.datosOriginales?.emp_salario_base,
+      emp_correo_personal: this.datosOriginales?.emp_correo_personal,
+      emp_correo_institucional: this.datosOriginales?.emp_correo_institucional,
+      emp_representante_legal: this.datosOriginales?.emp_representante_legal,
+      emp_estado: this.datosOriginales?.emp_estado,
+      id_sexo: this.datosOriginales?.id_sexo,
+      id_estado_civil: this.datosOriginales?.id_estado_civil,
+      id_profesion: this.datosOriginales?.id_profesion,
+      id_puesto: this.datosOriginales?.id_puesto,
+      id_unidad: this.datosOriginales?.id_unidad,
+      id_superior: this.datosOriginales?.id_superior,
+      id_empresa: this.datosOriginales?.id_empresa
+    };
+
+    // Comparar y agregar solo cambios
+    for (const [campo, valorOriginal] of Object.entries(camposAComparar)) {
+      if (datosActuales[campo as keyof CreateEmpleadoRequest] !== valorOriginal) {
+        cambios[campo] = datosActuales[campo as keyof CreateEmpleadoRequest];
+      }
+    }
+
+    // Comparar dirección
+    const direccionOriginal = this.datosOriginales?.direccion;
+    const direccionActual = datosActuales.direccion;
+    
+    if (direccionOriginal) {
+      let direccionCambio: any = {};
+      if (direccionActual.dir_calle !== direccionOriginal.dir_calle) {
+        direccionCambio.dir_calle = direccionActual.dir_calle;
+      }
+      if (direccionActual.dir_colonia !== direccionOriginal.dir_colonia) {
+        direccionCambio.dir_colonia = direccionActual.dir_colonia;
+      }
+      if (direccionActual.dir_referencia !== direccionOriginal.dir_referencia) {
+        direccionCambio.dir_referencia = direccionActual.dir_referencia;
+      }
+      if (direccionActual.id_municipio !== direccionOriginal.id_municipio) {
+        direccionCambio.id_municipio = direccionActual.id_municipio;
+      }
+      
+      if (Object.keys(direccionCambio).length > 0) {
+        cambios.direccion = direccionCambio;
+      }
+    }
+
+    console.log('📝 Comparación de datos:');
+    console.log('Originales:', this.datosOriginales);
+    console.log('Actuales:', datosActuales);
+    console.log('Cambios detectados:', cambios);
+
+    return cambios as Partial<CreateEmpleadoRequest>;
   }
 
   normalizarDatos(datos: any): CreateEmpleadoRequest {

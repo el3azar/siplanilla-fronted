@@ -16,7 +16,6 @@ export class AuthService {
 
   private currentUserSubject = new BehaviorSubject<AuthUser | null>(
     this.getUserFromStorage()
-    
   );
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -70,6 +69,14 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
   }
 
+  /**
+   * Verificar si la cuenta está bloqueada (Solo para referencia, el bloqueo es en backend)
+   */
+  isBlocked(): boolean {
+    // El bloqueo se maneja completamente en el backend
+    return false;
+  }
+
   getToken(): string | null {
     return sessionStorage.getItem(this.tokenKey);
   }
@@ -112,5 +119,25 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.hasToken();
+  }
+
+  /**
+   * Solicitar desbloqueo - envía correo con enlace
+   */
+  solicitarDesbloqueo(username: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/solicitar-desbloqueo`,
+      { username }
+    );
+  }
+
+  /**
+   * Confirmar desbloqueo - usa token del email
+   */
+  confirmarDesbloqueo(token: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.apiUrl}/confirmar-desbloqueo`,
+      { token }
+    );
   }
 }

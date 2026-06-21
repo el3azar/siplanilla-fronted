@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './components/auth/login/login.component';
 import { RecuperarPasswordComponent } from './components/auth/recuperar-password/recuperar-password.component';
+import { DesbloquearComponent } from './components/auth/desbloquear/desbloquear.component';
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ListaEmpleadosComponent } from './components/empleados/lista-empleados/lista-empleados.component';
@@ -21,6 +22,7 @@ export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'recuperar-password', component: RecuperarPasswordComponent },
+  { path: 'desbloquear', component: DesbloquearComponent },
   {
     path: '',
     component: MainLayoutComponent,

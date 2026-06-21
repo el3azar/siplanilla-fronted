@@ -1,0 +1,108 @@
+<div class="desbloqueo-page">
+  <div class="desbloqueo-card">
+
+    <!-- Logo -->
+    <div class="desbloqueo-logo">
+      <div class="desbloqueo-logo-icon">
+        <svg fill="currentColor" viewBox="0 0 24 24">
+          <path d="M3 3h8v8H3V3zm10 0h8v8h-8V3zM3 13h8v8H3v-8zm10 0h8v8h-8v-8z"/>
+        </svg>
+      </div>
+      <h1 class="desbloqueo-title">SiPlanilla SV</h1>
+      <p class="desbloqueo-subtitle">Desbloqueo de Cuenta</p>
+    </div>
+
+    <!-- Cargando -->
+    @if (cargando()) {
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p>Validando tu enlace de desbloqueo...</p>
+      </div>
+    }
+
+    <!-- Éxito -->
+    @if (!cargando() && exito()) {
+      <div class="success-message">
+        <div class="success-icon"></div>
+        <h2>¡Cuenta Desbloqueada!</h2>
+        <p>{{ mensaje() }}</p>
+        <button (click)="irALogin()" class="btn btn-primary">
+          Ir a Iniciar Sesión
+        </button>
+      </div>
+    }
+
+    <!-- Error / Solicitar nuevo token -->
+    @if (!cargando() && !exito()) {
+      <div class="error-message">
+        <div class="error-icon"></div>
+        <h2>Desbloqueo de Cuenta</h2>
+        @if (mensaje()) {
+          <p class="error-text">{{ mensaje() }}</p>
+        } @else {
+          <p>Para desbloquear tu cuenta, ingresa tu nombre de usuario para recibir un nuevo enlace por correo.</p>
+        }
+      </div>
+
+      @if (mostrarFormularioNuevo()) {
+        <form (ngSubmit)="solicitarNuevoToken()" class="desbloqueo-form">
+          <div class="form-group">
+            <label for="username" class="form-label">Usuario</label>
+            <input
+              id="username"
+              type="text"
+              [(ngModel)]="username"
+              name="username"
+              class="form-input"
+              placeholder="Ingresa tu nombre de usuario"
+              [disabled]="enviando()"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary desbloqueo-submit"
+            [disabled]="enviando()"
+          >
+            @if (enviando()) {
+              <span class="loading-spinner-small"></span>
+              Enviando...
+            } @else {
+              Enviar Enlace de Desbloqueo
+            }
+          </button>
+
+          <button
+            type="button"
+            (click)="irALogin()"
+            class="btn btn-link"
+          >
+            ← Volver a Login
+          </button>
+        </form>
+      } @else {
+        <div class="button-group">
+          <button
+            (click)="mostrarFormularioNuevo.set(true)"
+            class="btn btn-secondary"
+          >
+            Solicitar Nuevo Enlace
+          </button>
+          <button
+            (click)="irALogin()"
+            class="btn btn-link"
+          >
+            Volver a Login
+          </button>
+        </div>
+      }
+    }
+
+  </div>
+
+  <!-- Footer -->
+  <div class="desbloqueo-footer">
+    <p>¿Tienes problemas? Contacta con soporte técnico</p>
+  </div>
+</div>

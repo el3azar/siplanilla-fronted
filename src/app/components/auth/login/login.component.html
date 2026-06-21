@@ -27,7 +27,7 @@
       <div class="form-group">
         <label class="form-label" for="username">Usuario</label>
         <input #username id="username" type="text" class="form-input"
-               placeholder="Ingrese su usuario" autocomplete="username" 
+               placeholder="Ingrese su usuario" autocomplete="username"
                [disabled]="isLoading()" />
       </div>
 
@@ -66,6 +66,12 @@
           ¿Olvidó su contraseña?
         </a>
       </div>
+
+      <div class="login-divider">o</div>
+
+      <a [routerLink]="['/desbloquear']" class="btn btn-secondary login-submit" [class.disabled]="isLoading()">
+        Desbloquear Cuenta
+      </a>
 
     </form>
   </div>
