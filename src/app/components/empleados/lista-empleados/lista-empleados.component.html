@@ -21,7 +21,7 @@
 </div>
 
 <p class="emp-count">
-  Mostrando {{ empleadosFiltrados.length }} de {{ empleados.length }} empleados
+  Mostrando {{ empleadosFiltrados.length }} de {{ empleados().length }} empleados
   &nbsp;·&nbsp; Activos: {{ activos }} &nbsp;·&nbsp; Inactivos: {{ inactivos }}
 </p>
 
@@ -40,24 +40,45 @@
       </tr>
     </thead>
     <tbody>
-      @for (e of empleadosFiltrados; track e.dui) {
+      @if (isLoading()) {
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 2rem;">
+            <p>Cargando empleados...</p>
+          </td>
+        </tr>
+      }
+      @if (errorMessage()) {
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 2rem; color: var(--destructive);">
+            <p>{{ errorMessage() }}</p>
+          </td>
+        </tr>
+      }
+      @if (!isLoading() && !errorMessage() && empleadosFiltrados.length === 0) {
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 2rem;">
+            <p style="color: var(--muted-foreground);">No hay empleados para mostrar</p>
+          </td>
+        </tr>
+      }
+      @for (e of empleadosFiltrados; track e.id_empleado) {
         <tr>
           <td>
-            <p style="font-weight:500;margin:0">{{ e.nombre }}</p>
-            <p style="font-size:0.78rem;color:var(--muted-foreground);margin:0">{{ e.email }}</p>
+            <p style="font-weight:500;margin:0">{{ e.nombre_completo }}</p>
+            <p style="font-size:0.78rem;color:var(--muted-foreground);margin:0">{{ e.emp_correo_personal || e.emp_correo_institucional }}</p>
           </td>
           <td>
             <p style="font-size:0.75rem;color:var(--muted-foreground);margin:0">DUI</p>
-            {{ e.dui }}
+            {{ e.emp_dui }}
           </td>
-          <td style="font-size:0.85rem">{{ e.nit }}</td>
-          <td>{{ e.puesto }}</td>
-          <td style="color:var(--muted-foreground)">{{ e.unidad }}</td>
-          <td style="color:var(--accent-foreground);font-weight:600">{{ e.salario }}</td>
-          <td><span class="badge" [class.badge-green]="e.activo" [class.badge-red]="!e.activo">{{ e.activo ? 'Activo' : 'Inactivo' }}</span></td>
+          <td style="font-size:0.85rem">{{ e.emp_nit }}</td>
+          <td>{{ e.id_puesto }}</td>
+          <td style="color:var(--muted-foreground)">{{ e.id_unidad }}</td>
+          <td style="color:var(--accent-foreground);font-weight:600">${{ (e.emp_salario_base || 0).toLocaleString('es-SV') }}</td>
+          <td><span class="badge" [class.badge-green]="e.emp_estado" [class.badge-red]="!e.emp_estado">{{ e.emp_estado ? 'Activo' : 'Inactivo' }}</span></td>
           <td>
             <div style="display:flex;gap:0.4rem">
-              <a [routerLink]="['/empleados/editar', 1]" class="btn btn-outline btn-sm">
+              <a [routerLink]="['/empleados/editar', e.id_empleado]" class="btn btn-outline btn-sm">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125"/></svg>
                 Editar
               </a>
@@ -65,10 +86,17 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z"/></svg>
                 Boleta
               </button>
-              <button class="btn btn-danger btn-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"/></svg>
-                Desactivar
-              </button>
+              @if (e.emp_estado) {
+                <button class="btn btn-danger btn-sm" (click)="desactivarEmpleado(e.id_empleado, $event)">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 0 0 5.636 5.636m12.728 12.728A9 9 0 0 1 5.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                  Desactivar
+                </button>
+              } @else {
+                <button class="btn btn-success btn-sm" (click)="activarEmpleado(e.id_empleado, $event)">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  Activar
+                </button>
+              }
             </div>
           </td>
         </tr>

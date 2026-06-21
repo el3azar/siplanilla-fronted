@@ -15,14 +15,16 @@ import { BoletasPagoComponent } from './components/boletas-pago/boletas-pago.com
 import { EmpresaComponent } from './components/empresa/empresa.component';
 import { UsuariosComponent } from './components/administracion/usuarios/usuarios.component';
 import { RolesComponent } from './components/administracion/roles/roles.component';
+import { AuthGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'recuperar-password', component: RecuperarPasswordComponent },
   {
     path: '',
     component: MainLayoutComponent,
+    canActivate: [AuthGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'empleados', component: ListaEmpleadosComponent },
