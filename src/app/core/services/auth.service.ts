@@ -57,9 +57,20 @@ export class AuthService {
           errorMessage = error.message;
         }
 
-        return throwError(() => new Error(errorMessage));
+        // Crear objeto de error con status code para el componente
+        const customError = new Error(errorMessage) as any;
+        customError.status = error.status;
+        return throwError(() => customError);
       })
     );
+  }
+
+  /**
+   * Verificar estado de la cuenta antes de login
+   * GET /v1/auth/verificar-estado/{username}
+   */
+  verificarEstado(username: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/verificar-estado/${username}`);
   }
 
   logout(): void {

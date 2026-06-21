@@ -19,7 +19,7 @@ export class FormEmpleadoComponent implements OnInit {
   isSaving = signal(false);
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
-  
+
   empleadoId: number | null = null;
   isEditing = false;
   datosOriginales: any = null; // Para guardar datos originales en modo edición
@@ -170,7 +170,7 @@ export class FormEmpleadoComponent implements OnInit {
   mapearDatosAlFormulario(datos: EmpleadoResponse): void {
     // Guardar datos originales para comparar cambios
     this.datosOriginales = { ...datos };
-    
+
     this.form.patchValue({
       empNombre: datos.emp_nombre,
       empApellido: datos.emp_apellido,
@@ -205,19 +205,19 @@ export class FormEmpleadoComponent implements OnInit {
     this.successMessage.set(null);
 
     let datos: any;
-    
+
     if (this.isEditing && this.empleadoId) {
       // En modo edición: enviar solo los campos que cambiaron
       // NO validar todo el formulario, permitir cambios parciales
       datos = this.obtenerCambios();
-      
+
       if (Object.keys(datos).length === 0) {
         this.errorMessage.set('No hay cambios para guardar');
         this.isSaving.set(false);
         return;
       }
-      
-      console.log('📤 Cambios a enviar (PATCH):', JSON.stringify(datos, null, 2));
+
+      console.log(' Cambios a enviar (PATCH):', JSON.stringify(datos, null, 2));
     } else {
       // En modo creación: validar que todos los campos estén completos
       if (!this.form.valid) {
@@ -225,9 +225,9 @@ export class FormEmpleadoComponent implements OnInit {
         this.isSaving.set(false);
         return;
       }
-      
+
       datos = this.normalizarDatos(this.form.value);
-      console.log('📤 Datos a enviar (POST):', JSON.stringify(datos, null, 2));
+      console.log(' Datos a enviar (POST):', JSON.stringify(datos, null, 2));
     }
 
     const peticion = this.isEditing && this.empleadoId
@@ -240,13 +240,13 @@ export class FormEmpleadoComponent implements OnInit {
         this.successMessage.set(
           this.isEditing ? 'Empleado actualizado correctamente' : 'Empleado creado correctamente'
         );
-        
+
         setTimeout(() => {
           this.router.navigate(['/empleados']);
         }, 1500);
       },
       error: (error) => {
-        console.error('❌ Error HTTP completo:', error);
+        console.error(' Error HTTP completo:', error);
         console.error('Estado:', error.status);
         console.error('Mensaje:', error.message);
         console.error('Body:', error.error);
@@ -294,7 +294,7 @@ export class FormEmpleadoComponent implements OnInit {
     // Comparar dirección
     const direccionOriginal = this.datosOriginales?.direccion;
     const direccionActual = datosActuales.direccion;
-    
+
     if (direccionOriginal) {
       let direccionCambio: any = {};
       if (direccionActual.dir_calle !== direccionOriginal.dir_calle) {
@@ -309,7 +309,7 @@ export class FormEmpleadoComponent implements OnInit {
       if (direccionActual.id_municipio !== direccionOriginal.id_municipio) {
         direccionCambio.id_municipio = direccionActual.id_municipio;
       }
-      
+
       if (Object.keys(direccionCambio).length > 0) {
         cambios.direccion = direccionCambio;
       }
@@ -327,7 +327,7 @@ export class FormEmpleadoComponent implements OnInit {
     // Limpiar y validar DUI
     let dui = (datos.empDui || '').trim();
     console.log('📤 DUI enviado al backend:', dui);
-    
+
     const resultado = {
       emp_nombre: (datos.empNombre || '')?.trim() || '',
       emp_apellido: (datos.empApellido || '')?.trim() || '',
@@ -356,7 +356,7 @@ export class FormEmpleadoComponent implements OnInit {
         id_municipio: Number(datos.idMunicipio) || 0
       }
     } as any;
-    
+
     console.log('📤 JSON enviado:', JSON.stringify(resultado, null, 2));
     return resultado;
   }

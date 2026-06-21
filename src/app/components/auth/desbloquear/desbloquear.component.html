@@ -20,6 +20,13 @@
       </div>
     }
 
+    <!-- Alerta personalizada -->
+    @if (alertaMessage()) {
+      <div class="alerta-warning">
+        {{ alertaMessage() }}
+      </div>
+    }
+
     <!-- Éxito -->
     @if (!cargando() && exito()) {
       <div class="success-message">
