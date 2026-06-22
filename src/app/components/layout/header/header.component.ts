@@ -15,7 +15,6 @@ export class HeaderComponent implements OnDestroy {
   private authService = inject(AuthService);
 
   private readonly routeTitles: Record<string, string> = {
-    '/dashboard': 'Dashboard',
     '/empleados': 'Empleados',
     '/estructura-organizativa': 'Estructura Organizativa',
     '/puestos-salarios': 'Puestos y Salarios',
@@ -31,6 +30,14 @@ export class HeaderComponent implements OnDestroy {
   pageTitle   = signal(this.resolveTitle(this.router.url));
   currentTime = signal(this.formatTime(new Date()));
   currentDate = signal(this.formatDate(new Date()));
+
+  get username(): string {
+    return this.authService.getCurrentUser()?.username ?? 'Usuario';
+  }
+
+  get userRole(): string {
+    return this.authService.getRoles()[0] ?? '';
+  }
 
   private clockInterval = setInterval(() => {
     const now = new Date();

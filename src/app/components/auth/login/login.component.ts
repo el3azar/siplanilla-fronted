@@ -108,8 +108,8 @@ export class LoginComponent {
       next: (response) => {
         this.isLoading.set(false);
         this.isAccountBlocked.set(false);
-        // Navegar al dashboard después del login exitoso
-        this.router.navigate(['/dashboard']);
+        const destino = this.authService.isEmpleado() ? '/boletas-pago' : '/empleados';
+        this.router.navigate([destino]);
       },
       error: (error) => {
         this.isLoading.set(false);
