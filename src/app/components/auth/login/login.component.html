@@ -13,44 +13,76 @@
     </div>
 
     <!-- Form -->
-    <form class="login-form" (submit)="$event.preventDefault()">
+    <form class="login-form" (submit)="onLogin(); $event.preventDefault()">
+
+      @if (errorMessage()) {
+        <div class="error-message">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="error-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c.866-1.5 2.54-2.748 4.56-2.748 1.378 0 2.679.5 3.681 1.32m0 0a9.865 9.865 0 0 1 5.122-1.32c2.02 0 3.693 1.248 4.56 2.748M4.5 19.5h15a2.25 2.25 0 0 0 2.25-2.25V6.75A2.25 2.25 0 0 0 19.5 4.5H4.5A2.25 2.25 0 0 0 2.25 6.75v10.5A2.25 2.25 0 0 0 4.5 19.5Z" />
+          </svg>
+          {{ errorMessage() }}
+        </div>
+      }
 
       <div class="form-group">
         <label class="form-label" for="username">Usuario</label>
-        <input id="username" type="text" class="form-input"
-               placeholder="Ingrese su usuario" autocomplete="username" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="password">Contraseña</label>
-        <div class="password-wrapper">
-          <input id="password" [type]="showPassword() ? 'text' : 'password'"
-                 class="form-input" placeholder="Ingrese su contraseña"
-                 autocomplete="current-password" />
-          <button type="button" class="password-toggle" (click)="togglePassword()">
-            @if (showPassword()) {
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
-              </svg>
-            } @else {
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-              </svg>
-            }
-          </button>
+        <div class="username-wrapper">
+          <input #username id="username" type="text" class="form-input"
+                 placeholder="Ingrese su usuario" autocomplete="username"
+                 (blur)="onUsernameBlur()"
+                 [disabled]="isLoading()" />
+          @if (verificandoUsername()) {
+            <span class="verifying-spinner"></span>
+          }
         </div>
       </div>
 
-      <button type="submit" class="btn btn-primary login-submit">
-        Ingresar
-      </button>
+      @if (!isAccountBlocked() && !userNotFound()) {
+        <div class="form-group">
+          <label class="form-label" for="password">Contraseña</label>
+          <div class="password-wrapper">
+            <input #password id="password" [type]="showPassword() ? 'text' : 'password'"
+                   class="form-input" placeholder="Ingrese su contraseña"
+                   autocomplete="current-password" [disabled]="isLoading()" />
+            <button type="button" class="password-toggle" (click)="togglePassword()" [disabled]="isLoading()">
+              @if (showPassword()) {
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 0 0 1.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.451 10.451 0 0 1 12 4.5c4.756 0 8.773 3.162 10.065 7.498a10.522 10.522 0 0 1-4.293 5.774M6.228 6.228 3 3m3.228 3.228 3.65 3.65m7.894 7.894L21 21m-3.228-3.228-3.65-3.65m0 0a3 3 0 1 0-4.243-4.243m4.242 4.242L9.88 9.88" />
+                </svg>
+              } @else {
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                </svg>
+              }
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary login-submit" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span class="loading-spinner"></span>
+            Iniciando sesión...
+          } @else {
+            Ingresar
+          }
+        </button>
+      }
 
       <div class="login-footer">
-        <a [routerLink]="['/recuperar-password']" class="login-link">
+        @if (isAccountBlocked()) {
+          <p class="account-blocked-note">Tu cuenta está bloqueada por seguridad.</p>
+        }
+        <a [routerLink]="['/recuperar-password']" class="login-link" [class.disabled]="isLoading()">
           ¿Olvidó su contraseña?
         </a>
       </div>
+
+      <div class="login-divider">o</div>
+
+      <a [routerLink]="['/desbloquear']" class="btn btn-secondary login-submit" [class.blocked]="isAccountBlocked()" [class.disabled]="isLoading()">
+         Desbloquear Cuenta
+      </a>
 
     </form>
   </div>

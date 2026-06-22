@@ -1,0 +1,134 @@
+.usr-page-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+/* Alertas */
+@keyframes usr-slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.usr-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  animation: usr-slide-in 0.2s ease;
+}
+.usr-alert--success { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+.usr-alert--error   { background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; }
+
+.usr-alert__icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+}
+
+/* Acciones de fila */
+.usr-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Edición de rol inline */
+.usr-rol-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.usr-select-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.8rem;
+  height: auto;
+}
+
+.usr-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Celda vacía */
+.usr-empty {
+  text-align: center;
+  color: var(--muted-foreground);
+  padding: 2rem;
+}
+
+/* Input con error */
+.usr-input--error {
+  border-color: var(--destructive) !important;
+}
+.usr-error {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--destructive);
+  margin-top: 0.25rem;
+}
+
+/* Modal */
+.usr-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.usr-modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.usr-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 0;
+}
+
+.usr-modal__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--foreground);
+}
+
+.usr-modal__close {
+  padding: 0.25rem;
+}
+
+.usr-modal__body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.usr-modal__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 0.5rem;
+}
+
+/* Form groups inside modal */
+.usr-form-group {
+  display: flex;
+  flex-direction: column;
+}

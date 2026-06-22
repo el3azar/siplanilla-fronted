@@ -1,12 +1,29 @@
 <div class="fe-header">
-  <a [routerLink]="['/empleados']" class="btn btn-ghost btn-sm">
+  <button type="button" class="btn btn-ghost btn-sm" (click)="volver()">
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5 3 12m0 0 7.5-7.5M3 12h18"/></svg>
     Volver
-  </a>
-  <h2 class="fe-header__title">Nuevo Empleado</h2>
+  </button>
+  <h2 class="fe-header__title">{{ isEditing ? 'Editar Empleado' : 'Nuevo Empleado' }}</h2>
 </div>
 
-<form (submit)="$event.preventDefault()" class="fe-form">
+@if (errorMessage()) {
+  <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgb(239, 68, 68); border-radius: 0.375rem; padding: 1rem; margin-bottom: 1.5rem; color: rgb(239, 68, 68);">
+    {{ errorMessage() }}
+  </div>
+}
+
+@if (successMessage()) {
+  <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgb(34, 197, 94); border-radius: 0.375rem; padding: 1rem; margin-bottom: 1.5rem; color: rgb(34, 197, 94);">
+    {{ successMessage() }}
+  </div>
+}
+
+@if (isLoading()) {
+  <div style="text-align: center; padding: 3rem 1rem;">
+    <p>Cargando datos del empleado...</p>
+  </div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="guardar()" class="fe-form">
 
   <!-- Datos Personales -->
   <div class="card fe-section">
@@ -14,58 +31,65 @@
     <div class="fe-grid">
       <div class="fe-field">
         <label class="form-label">Nombre(s) <span style="color:var(--destructive)">*</span></label>
-        <input type="text" class="form-input" placeholder="Ej. Carlos Roberto" />
+        <input type="text" class="form-input" placeholder="Ej. Carlos Roberto" formControlName="empNombre" />
       </div>
       <div class="fe-field">
         <label class="form-label">Apellido(s) <span style="color:var(--destructive)">*</span></label>
-        <input type="text" class="form-input" placeholder="Ej. Martínez Herrera" />
+        <input type="text" class="form-input" placeholder="Ej. Martínez Herrera" formControlName="empApellido" />
       </div>
       <div class="fe-field">
         <label class="form-label">DUI <span style="color:var(--destructive)">*</span></label>
-        <input type="text" class="form-input" placeholder="00000000-0" />
+        <input type="text" class="form-input" placeholder="00000000-0" formControlName="empDui" [appMaskDUI]="true" />
+        @if (form.get('empDui')?.hasError('required') && form.get('empDui')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">DUI es requerido</span>
+        }
       </div>
       <div class="fe-field">
         <label class="form-label">NIT</label>
-        <input type="text" class="form-input" placeholder="0000-000000-000-0" />
+        <input type="text" class="form-input" placeholder="0000-000000-000-0" formControlName="empNit" [appMaskNIT]="true" />
       </div>
       <div class="fe-field">
         <label class="form-label">NUP</label>
-        <input type="text" class="form-input" placeholder="NUP-000000000" />
+        <input type="text" class="form-input" placeholder="000000000" formControlName="empNup"
+               [appMaskNUP]="true" maxlength="9" />
       </div>
       <div class="fe-field">
         <label class="form-label">ISSS</label>
-        <input type="text" class="form-input" placeholder="000000000" />
+        <input type="text" class="form-input" placeholder="000000000" formControlName="empIsss"
+               [appMaskISSS]="true" maxlength="9" />
       </div>
       <div class="fe-field">
         <label class="form-label">Fecha de Nacimiento</label>
-        <input type="date" class="form-input" />
+        <input type="date" class="form-input" formControlName="empFechaNacimiento" />
+        @if (form.get('empFechaNacimiento')?.hasError('fechaNacimientoFutura') && form.get('empFechaNacimiento')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">La fecha de nacimiento no puede ser en el futuro</span>
+        }
       </div>
       <div class="fe-field">
         <label class="form-label">Sexo</label>
-        <select class="form-select">
-          <option value="">— Seleccione —</option>
-          <option>Masculino</option>
-          <option>Femenino</option>
+        <select class="form-select" formControlName="idSexo">
+          <option value="0">— Seleccione —</option>
+          @for (sexo of sexos(); track sexo.id) {
+            <option [value]="sexo.id">{{ sexo.nombre }}</option>
+          }
         </select>
       </div>
       <div class="fe-field">
         <label class="form-label">Estado Civil</label>
-        <select class="form-select">
-          <option value="">— Seleccione —</option>
-          <option>Soltero/a</option>
-          <option>Casado/a</option>
-          <option>Divorciado/a</option>
-          <option>Viudo/a</option>
-          <option>Unión no matrimonial</option>
+        <select class="form-select" formControlName="idEstadoCivil">
+          <option value="0">— Seleccione —</option>
+          @for (estado of estadosCiviles(); track estado.id) {
+            <option [value]="estado.id">{{ estado.nombre }}</option>
+          }
         </select>
       </div>
       <div class="fe-field">
         <label class="form-label">Profesión / Oficio</label>
-        <select class="form-select">
-          <option value="">— Seleccione —</option>
-          <option>Ingeniero en Sistemas</option>
-          <option>Contador Público</option>
-          <option>Licenciado en Administración</option>
+        <select class="form-select" formControlName="idProfesion">
+          <option value="0">— Seleccione —</option>
+          @for (profesion of profesiones(); track profesion.id) {
+            <option [value]="profesion.id">{{ profesion.nombre }}</option>
+          }
         </select>
       </div>
     </div>
@@ -76,48 +100,77 @@
     <p class="section-label">Datos Laborales</p>
     <div class="fe-grid">
       <div class="fe-field">
+        <label class="form-label">Empresa <span style="color:var(--destructive)">*</span></label>
+        <select class="form-select" formControlName="idEmpresa">
+          <option value="0">— Seleccione —</option>
+          @for (empresa of empresas(); track empresa.id) {
+            <option [value]="empresa.id">{{ empresa.nombre }}</option>
+          }
+        </select>
+      </div>
+      <div class="fe-field">
         <label class="form-label">Puesto de Trabajo <span style="color:var(--destructive)">*</span></label>
-        <select class="form-select">
-          <option value="">— Seleccione —</option>
-          <option>Gerente General</option>
-          <option>Desarrollador de Software</option>
-          <option>Contador General</option>
+        <select class="form-select" formControlName="idPuesto">
+          <option value="0">— Seleccione —</option>
+          @for (puesto of puestos(); track puesto.id) {
+            <option [value]="puesto.id">{{ puesto.nombre }}</option>
+          }
         </select>
       </div>
       <div class="fe-field">
         <label class="form-label">Unidad Organizativa <span style="color:var(--destructive)">*</span></label>
-        <select class="form-select">
-          <option value="">— Seleccione —</option>
-          <option>Gerencia General</option>
-          <option>Gerencia de Recursos Humanos</option>
-          <option>Área de Desarrollo de Software</option>
+        <select class="form-select" formControlName="idUnidad">
+          <option value="0">— Seleccione —</option>
+          @for (unidad of unidades(); track unidad.id) {
+            <option [value]="unidad.id">{{ unidad.nombre }}</option>
+          }
         </select>
       </div>
       <div class="fe-field">
         <label class="form-label">Fecha de Ingreso <span style="color:var(--destructive)">*</span></label>
-        <input type="date" class="form-input" />
+        <input type="date" class="form-input" formControlName="empFechaIngreso" />
+        @if (form.get('empFechaIngreso')?.hasError('required') && form.get('empFechaIngreso')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">Fecha de ingreso es requerida</span>
+        }
+        @if (form.get('empFechaIngreso')?.hasError('fechaIngresoFutura') && form.get('empFechaIngreso')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">La fecha de ingreso no puede ser en el futuro</span>
+        }
       </div>
       <div class="fe-field">
         <label class="form-label">Salario Base <span style="color:var(--destructive)">*</span></label>
-        <input type="number" class="form-input" placeholder="0.00" step="0.01" />
+        <input type="number" class="form-input" placeholder="0.00" step="0.01" min="0" formControlName="empSalarioBase" />
+        @if (form.get('empSalarioBase')?.hasError('required') && form.get('empSalarioBase')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">Salario es requerido</span>
+        }
+        @if (form.get('empSalarioBase')?.hasError('salarioNegativo') && form.get('empSalarioBase')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">El salario debe ser positivo</span>
+        }
       </div>
       <div class="fe-field">
         <label class="form-label">Correo Institucional</label>
-        <input type="email" class="form-input" placeholder="nombre@corporacionempresarial.com.sv" />
+        <input type="email" class="form-input" placeholder="nombre@corporacionempresarial.com.sv" formControlName="empCorreoInstitucional" />
+        @if (form.get('empCorreoInstitucional')?.hasError('email') && form.get('empCorreoInstitucional')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">Correo inválido</span>
+        }
       </div>
       <div class="fe-field">
         <label class="form-label">Correo Personal</label>
-        <input type="email" class="form-input" placeholder="nombre@gmail.com" />
+        <input type="email" class="form-input" placeholder="nombre@gmail.com" formControlName="empCorreoPersonal" />
+        @if (form.get('empCorreoPersonal')?.hasError('email') && form.get('empCorreoPersonal')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">Correo inválido</span>
+        }
       </div>
       <div class="fe-field">
         <label class="form-label">Superior Inmediato</label>
-        <select class="form-select">
-          <option value="">— Sin superior —</option>
-          <option>Martínez Herrera Carlos Roberto</option>
+        <select class="form-select" formControlName="idSuperior">
+          <option value="0">— Sin superior —</option>
+          @for (empleado of empleados(); track empleado.id_empleado) {
+            <option [value]="empleado.id_empleado">{{ empleado.emp_nombre }} {{ empleado.emp_apellido }}</option>
+          }
         </select>
       </div>
       <div class="fe-field" style="display:flex;align-items:center;gap:0.5rem;padding-top:1.5rem">
-        <input type="checkbox" id="repLegal" style="width:1rem;height:1rem;cursor:pointer" />
+        <input type="checkbox" id="repLegal" style="width:1rem;height:1rem;cursor:pointer" formControlName="empRepresentanteLegal" />
         <label for="repLegal" style="font-size:0.875rem;cursor:pointer">Representante Legal</label>
       </div>
     </div>
@@ -128,42 +181,50 @@
     <p class="section-label">Dirección</p>
     <div class="fe-grid">
       <div class="fe-field">
-        <label class="form-label">Departamento</label>
-        <select class="form-select">
-          <option value="">— Seleccione —</option>
-          <option>San Salvador</option>
-          <option>Santa Ana</option>
-          <option>San Miguel</option>
+        <label class="form-label">Municipio <span style="color:var(--destructive)">*</span></label>
+        <select class="form-select" formControlName="idMunicipio">
+          <option value="0">— Seleccione municipio —</option>
+          @for (municipio of municipios(); track municipio.id) {
+            <option [value]="municipio.id">{{ municipio.nombre }}</option>
+          }
         </select>
-      </div>
-      <div class="fe-field">
-        <label class="form-label">Municipio</label>
-        <select class="form-select">
-          <option value="">— Seleccione municipio —</option>
-        </select>
+        @if (form.get('idMunicipio')?.hasError('required') && form.get('idMunicipio')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">Municipio es requerido</span>
+        }
       </div>
       <div class="fe-field fe-field--full">
-        <label class="form-label">Calle / Avenida</label>
-        <input type="text" class="form-input" placeholder="Ej. Calle Principal" />
+        <label class="form-label">Calle / Avenida <span style="color:var(--destructive)">*</span></label>
+        <input type="text" class="form-input" placeholder="Ej. Calle Principal" formControlName="dirCalle" />
+        @if (form.get('dirCalle')?.hasError('required') && form.get('dirCalle')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">Calle es requerida</span>
+        }
       </div>
       <div class="fe-field fe-field--full">
-        <label class="form-label">Colonia / Urb.</label>
-        <input type="text" class="form-input" placeholder="Ej. Colonia Escalón" />
+        <label class="form-label">Colonia / Urb. <span style="color:var(--destructive)">*</span></label>
+        <input type="text" class="form-input" placeholder="Ej. Colonia Escalón" formControlName="dirColonia" />
+        @if (form.get('dirColonia')?.hasError('required') && form.get('dirColonia')?.touched) {
+          <span style="color:var(--destructive); font-size:0.875rem;">Colonia es requerida</span>
+        }
       </div>
       <div class="fe-field fe-field--full">
         <label class="form-label">Referencia</label>
-        <input type="text" class="form-input" placeholder="Ej. Casa de color azul, frente al parque" />
+        <input type="text" class="form-input" placeholder="Ej. Casa de color azul, frente al parque" formControlName="dirReferencia" />
       </div>
     </div>
   </div>
 
   <!-- Botones -->
   <div class="fe-footer">
-    <a [routerLink]="['/empleados']" class="btn btn-outline">Cancelar</a>
-    <button type="submit" class="btn btn-primary">
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3"/></svg>
-      Guardar Empleado
+    <button type="button" class="btn btn-outline" (click)="volver()">Cancelar</button>
+    <button type="submit" class="btn btn-primary" [disabled]="isSaving()">
+      @if (isSaving()) {
+        <span>Guardando...</span>
+      } @else {
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 3.75H6.912a2.25 2.25 0 0 0-2.15 1.588L2.35 13.177a2.25 2.25 0 0 0-.1.661V18a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18v-4.162c0-.224-.034-.447-.1-.661L19.24 5.338a2.25 2.25 0 0 0-2.15-1.588H15M2.25 13.5h3.86a2.25 2.25 0 0 1 2.012 1.244l.256.512a2.25 2.25 0 0 0 2.013 1.244h3.218a2.25 2.25 0 0 0 2.013-1.244l.256-.512a2.25 2.25 0 0 1 2.013-1.244h3.859M12 3v8.25m0 0-3-3m3 3 3-3"/></svg>
+        Guardar Empleado
+      }
     </button>
   </div>
 
-</form>
+  </form>
+}

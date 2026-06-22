@@ -64,6 +64,23 @@
 
 .form-group { display: flex; flex-direction: column; }
 
+.username-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.verifying-spinner {
+  position: absolute;
+  right: 0.75rem;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--primary);
+  animation: spin 0.6s linear infinite;
+}
+
 .password-wrapper {
   position: relative;
   display: flex;
@@ -94,6 +111,100 @@
   margin-top: 0.25rem;
 }
 
+
+.error-message {
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: #c33;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+.error-icon {
+  width: 1.2rem;
+  height: 1.2rem;
+  flex-shrink: 0;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 0.6s linear infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.login-submit:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.password-toggle:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.form-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: var(--muted);
+}
+
+.login-link.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.login-divider {
+  text-align: center;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  margin: 1rem 0;
+  position: relative;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 45%;
+  height: 1px;
+  background-color: var(--border);
+}
+
+.login-divider::before {
+  left: 0;
+}
+
+.login-divider::after {
+  right: 0;
+}
+
+.btn-secondary {
+  background-color: var(--muted);
+  color: var(--foreground);
+  border: 1px solid var(--border);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--muted-foreground);
+  color: white;
+  border-color: var(--primary);
+}
+
 .login-footer {
   text-align: center;
 }
@@ -103,3 +214,22 @@
   text-decoration: none;
 }
 .login-link:hover { text-decoration: underline; }
+
+/* Account Blocked Styles */
+.account-blocked-note {
+  color: #d32f2f;
+  font-weight: 600;
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+}
+
+.btn-secondary.blocked {
+  background-color: #d32f2f;
+  color: white;
+  border-color: #b71c1c;
+}
+
+.btn-secondary.blocked:hover:not(:disabled) {
+  background-color: #b71c1c;
+  border-color: #7d0a0a;
+}

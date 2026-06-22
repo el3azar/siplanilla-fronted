@@ -1,0 +1,251 @@
+@if (mensajeExito) {
+  <div class="toast-exito">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
+    </svg>
+    {{ mensajeExito }}
+  </div>
+}
+
+<div class="dp-layout">
+
+  <!-- Panel izquierdo -->
+  <div class="dp-panel dp-panel--left">
+    <h2 class="dp-panel__title">Empleados</h2>
+
+    <!-- Buscador -->
+    <div class="dp-busqueda">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/>
+      </svg>
+      <input type="text" placeholder="Buscar empleado..." [(ngModel)]="busqueda" class="dp-busqueda__input"/>
+    </div>
+
+    <div class="dp-list">
+      @for (detalle of detallesFiltrados(); track detalle.idDetallePlanilla) {
+        <div class="dp-item"
+             [class.dp-item--active]="detalleSeleccionado?.idDetallePlanilla === detalle.idDetallePlanilla"
+             (click)="seleccionarEmpleado(detalle)">
+          <div class="dp-item__nombre">{{ detalle.nombreEmpleado }}</div>
+          <div class="dp-item__periodo">{{ detalle.periodo }}</div>
+          <div class="dp-item__salario">${{ detalle.detSalarioBase | number:'1.2-2' }}</div>
+        </div>
+      }
+    </div>
+  </div>
+
+  <!-- Panel derecho -->
+  <div class="dp-panel dp-panel--right">
+    @if (!detalleSeleccionado) {
+      <div class="dp-empty">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"/>
+        </svg>
+        <p>Seleccioná un empleado para ver su detalle</p>
+      </div>
+    } @else {
+
+      <!-- Header -->
+      <div class="dp-header">
+        <div>
+          <h2 class="dp-header__nombre">{{ detalleSeleccionado.nombreEmpleado }}</h2>
+          <p class="dp-header__periodo">{{ detalleSeleccionado.periodo }}</p>
+        </div>
+        <div class="dp-header__acciones">
+          <button class="btn btn-success" (click)="abrirModalIngreso()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg>
+            Agregar Ingreso
+          </button>
+          <button class="btn btn-primary" (click)="abrirModalDescuento()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+            </svg>
+            Agregar Descuento
+          </button>
+        </div>
+      </div>
+
+      <!-- Resumen -->
+      <div class="dp-resumen">
+        <div class="dp-resumen__card">
+          <span class="dp-resumen__label">Salario Base</span>
+          <span class="dp-resumen__valor">${{ detalleSeleccionado.detSalarioBase | number:'1.2-2' }}</span>
+        </div>
+        <div class="dp-resumen__card">
+          <span class="dp-resumen__label">Total Ingresos</span>
+          <span class="dp-resumen__valor dp-resumen__valor--ingreso">${{ detalleSeleccionado.detTotalIngresos | number:'1.2-2' }}</span>
+        </div>
+        <div class="dp-resumen__card">
+          <span class="dp-resumen__label">Total Descuentos</span>
+          <span class="dp-resumen__valor dp-resumen__valor--descuento">${{ detalleSeleccionado.detTotalDescuentos | number:'1.2-2' }}</span>
+        </div>
+        <div class="dp-resumen__card dp-resumen__card--neto">
+          <span class="dp-resumen__label">Salario Neto</span>
+          <span class="dp-resumen__valor dp-resumen__valor--neto">${{ detalleSeleccionado.detSalarioNeto | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Sección Ingresos -->
+      <div class="dp-seccion dp-seccion--ingreso">
+        <div class="dp-seccion__header">
+          <div class="dp-seccion__icon dp-seccion__icon--ingreso">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/>
+            </svg>
+          </div>
+          <h3 class="dp-seccion__titulo">Ingresos aplicados</h3>
+          <span class="dp-seccion__badge dp-seccion__badge--ingreso">{{ ingresos.length }}</span>
+        </div>
+        <div class="dp-items-lista">
+          @if (ingresos.length === 0) {
+            <div class="dp-sin-items">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/>
+              </svg>
+              No hay ingresos registrados
+            </div>
+          }
+          @for (i of ingresos; track i.idIngreso) {
+            <div class="dp-item-fila dp-item-fila--ingreso">
+              <div class="dp-item-fila__indicador dp-item-fila__indicador--ingreso"></div>
+              <div class="dp-item-fila__contenido">
+                <span class="dp-item-fila__nombre">{{ i.tigNombre }}</span>
+                <span class="dp-item-fila__monto dp-item-fila__monto--ingreso">+${{ i.ingMonto | number:'1.2-2' }}</span>
+              </div>
+              <div class="dp-item-fila__acciones">
+                <button class="btn btn-warning btn-sm" (click)="abrirModalEditarIngreso(i)">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487a2.25 2.25 0 1 1 3.182 3.182L7.5 19.213 3 21l1.787-4.5 12.075-12.013Z"/>
+                  </svg>
+                </button>
+                <button class="btn btn-danger btn-sm" (click)="confirmarEliminar(i.idIngreso, 'ingreso')">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Sección Descuentos -->
+      <div class="dp-seccion dp-seccion--descuento">
+        <div class="dp-seccion__header">
+          <div class="dp-seccion__icon dp-seccion__icon--descuento">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6 9 12.75l4.286-4.286a11.948 11.948 0 0 1 4.306 6.43l.776 2.898m0 0 3.182-5.511m-3.182 5.51-5.511-3.181"/>
+            </svg>
+          </div>
+          <h3 class="dp-seccion__titulo">Descuentos aplicados</h3>
+          <span class="dp-seccion__badge dp-seccion__badge--descuento">{{ descuentos.length }}</span>
+        </div>
+        <div class="dp-items-lista">
+          @if (descuentos.length === 0) {
+            <div class="dp-sin-items">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"/>
+              </svg>
+              No hay descuentos registrados
+            </div>
+          }
+          @for (d of descuentos; track d.idDescuento) {
+            <div class="dp-item-fila dp-item-fila--descuento">
+              <div class="dp-item-fila__indicador dp-item-fila__indicador--descuento"></div>
+              <div class="dp-item-fila__contenido">
+                <span class="dp-item-fila__nombre">{{ d.tidNombre }}</span>
+                <span class="dp-item-fila__monto dp-item-fila__monto--descuento">-${{ d.desMonto | number:'1.2-2' }}</span>
+              </div>
+              <div class="dp-item-fila__acciones">
+                <button class="btn btn-warning btn-sm" (click)="abrirModalEditarDescuento(d)">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487a2.25 2.25 0 1 1 3.182 3.182L7.5 19.213 3 21l1.787-4.5 12.075-12.013Z"/>
+                  </svg>
+                </button>
+                <button class="btn btn-danger btn-sm" (click)="confirmarEliminar(d.idDescuento, 'descuento')">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+    }
+  </div>
+</div>
+
+<!-- Modal Ingreso -->
+@if (mostrarModalIngreso) {
+  <div class="modal-overlay" (click)="cerrarModalIngreso()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 class="modal__title">{{ modoEdicionIngreso ? 'Editar Ingreso' : 'Agregar Ingreso' }}</h3>
+      <label class="modal__label">Tipo de Ingreso</label>
+      <select class="modal__select" [(ngModel)]="idTipoIngresoInput" (ngModelChange)="errorIngreso = ''">
+        <option [ngValue]="null" disabled>Seleccioná un tipo</option>
+        @for (tipo of tiposIngreso; track tipo.idTipoIngreso) {
+          <option [ngValue]="tipo.idTipoIngreso">{{ tipo.tigNombre }}</option>
+        }
+      </select>
+      <label class="modal__label">Monto ($)</label>
+      <input class="modal__input" type="number" min="0.01" step="0.01" placeholder="0.00"
+             [(ngModel)]="montoIngresoInput" (ngModelChange)="errorIngreso = ''"/>
+      @if (errorIngreso) {
+        <p class="modal__error">{{ errorIngreso }}</p>
+      }
+      <div class="modal__actions">
+        <button class="btn btn-outline" (click)="cerrarModalIngreso()">Cancelar</button>
+        <button class="btn btn-success" (click)="guardarIngreso()" [disabled]="!idTipoIngresoInput || !montoIngresoInput">Guardar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal Descuento -->
+@if (mostrarModalDescuento) {
+  <div class="modal-overlay" (click)="cerrarModalDescuento()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h3 class="modal__title">{{ modoEdicionDescuento ? 'Editar Descuento' : 'Agregar Descuento' }}</h3>
+      <label class="modal__label">Tipo de Descuento</label>
+      <select class="modal__select" [(ngModel)]="idTipoDescuentoInput" (ngModelChange)="errorDescuento = ''">
+        <option [ngValue]="null" disabled>Seleccioná un tipo</option>
+        @for (tipo of tiposDescuento; track tipo.idTipoDescuento) {
+          <option [ngValue]="tipo.idTipoDescuento">{{ tipo.tidNombre }}</option>
+        }
+      </select>
+      <label class="modal__label">Monto ($)</label>
+      <input class="modal__input" type="number" min="0.01" step="0.01" placeholder="0.00"
+             [(ngModel)]="montoDescuentoInput" (ngModelChange)="errorDescuento = ''"/>
+      @if (errorDescuento) {
+        <p class="modal__error">{{ errorDescuento }}</p>
+      }
+      <div class="modal__actions">
+        <button class="btn btn-outline" (click)="cerrarModalDescuento()">Cancelar</button>
+        <button class="btn btn-primary" (click)="guardarDescuento()" [disabled]="!idTipoDescuentoInput || !montoDescuentoInput">Guardar</button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Confirm Eliminar -->
+@if (mostrarConfirm) {
+  <div class="confirm-overlay" (click)="cancelarEliminar()">
+    <div class="confirm-box" (click)="$event.stopPropagation()">
+      <div class="confirm-box__icon">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/>
+        </svg>
+      </div>
+      <h3 class="confirm-box__title">¿Eliminar {{ tipoEliminar }}?</h3>
+      <p class="confirm-box__text">Esta acción no se puede deshacer.</p>
+      <div class="confirm-box__actions">
+        <button class="btn btn-outline" (click)="cancelarEliminar()">Cancelar</button>
+        <button class="btn btn-danger" (click)="ejecutarEliminar()">Eliminar</button>
+      </div>
+    </div>
+  </div>
+}
