@@ -44,8 +44,8 @@ export class LoginComponent {
     this.authService.login({ username, password }).subscribe({
       next: (response) => {
         this.isLoading.set(false);
-        // Navegar al dashboard después del login exitoso
-        this.router.navigate(['/dashboard']);
+        const destino = this.authService.isEmpleado() ? '/boletas-pago' : '/empleados';
+        this.router.navigate([destino]);
       },
       error: (error) => {
         this.isLoading.set(false);

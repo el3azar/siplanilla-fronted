@@ -31,11 +31,9 @@ export class AuthService {
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, credentials).pipe(
       tap((response) => {
-        // Extraer token de data.access_token
         if (response.data && response.data.access_token) {
           this.setToken(response.data.access_token);
         }
-        // Extraer usuario de data.user
         if (response.data && response.data.user) {
           this.setUser(response.data.user);
           this.currentUserSubject.next(response.data.user);
@@ -43,11 +41,6 @@ export class AuthService {
         this.isAuthenticatedSubject.next(true);
       }),
       catchError((error) => {
-        console.error('Error completo en login:', error);
-        console.error('Status:', error.status);
-        console.error('Status text:', error.statusText);
-        console.error('Error body:', error.error);
-
         let errorMessage = 'Error al iniciar sesión';
         if (error.error?.message) {
           errorMessage = error.error.message;
@@ -56,7 +49,6 @@ export class AuthService {
         } else if (error.message) {
           errorMessage = error.message;
         }
-
         return throwError(() => new Error(errorMessage));
       })
     );
@@ -69,13 +61,33 @@ export class AuthService {
     this.isAuthenticatedSubject.next(false);
   }
 
-  /**
-   * Verificar si la cuenta está bloqueada (Solo para referencia, el bloqueo es en backend)
-   */
-  isBlocked(): boolean {
-    // El bloqueo se maneja completamente en el backend
-    return false;
+  // --- Helpers de rol ---
+
+  hasRole(role: string): boolean {
+    return this.getCurrentUser()?.roles?.includes(role) ?? false;
   }
+
+  getRoles(): string[] {
+    return this.getCurrentUser()?.roles ?? [];
+  }
+
+  getIdEmpleado(): number | null {
+    return this.getCurrentUser()?.id_empleado ?? null;
+  }
+
+  isAdmin(): boolean {
+    return this.hasRole('Administrador');
+  }
+
+  isRRHH(): boolean {
+    return this.hasRole('RRHH');
+  }
+
+  isEmpleado(): boolean {
+    return this.hasRole('Empleado');
+  }
+
+  // --- Token y sesión ---
 
   getToken(): string | null {
     return sessionStorage.getItem(this.tokenKey);
@@ -106,13 +118,6 @@ export class AuthService {
     sessionStorage.removeItem(this.userKey);
   }
 
-  private loadUserFromStorage(): void {
-    const user = this.getUserFromStorage();
-    if (user) {
-      this.currentUserSubject.next(user);
-    }
-  }
-
   getCurrentUser(): AuthUser | null {
     return this.currentUserSubject.value;
   }
@@ -121,23 +126,24 @@ export class AuthService {
     return this.hasToken();
   }
 
-  /**
-   * Solicitar desbloqueo - envía correo con enlace
-   */
-  solicitarDesbloqueo(username: string): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/solicitar-desbloqueo`,
-      { username }
-    );
+  isBlocked(): boolean {
+    return false;
   }
 
-  /**
-   * Confirmar desbloqueo - usa token del email
-   */
+  private loadUserFromStorage(): void {
+    const user = this.getUserFromStorage();
+    if (user) {
+      this.currentUserSubject.next(user);
+    }
+  }
+
+  // --- Desbloqueo ---
+
+  solicitarDesbloqueo(username: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/solicitar-desbloqueo`, { username });
+  }
+
   confirmarDesbloqueo(token: string): Observable<any> {
-    return this.http.post<any>(
-      `${this.apiUrl}/confirmar-desbloqueo`,
-      { token }
-    );
+    return this.http.post<any>(`${this.apiUrl}/confirmar-desbloqueo`, { token });
   }
 }

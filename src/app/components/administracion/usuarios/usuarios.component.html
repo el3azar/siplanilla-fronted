@@ -1,0 +1,194 @@
+<!-- Toolbar -->
+<div class="page-toolbar">
+  <h2 class="usr-page-title">Gestión de Usuarios</h2>
+  <button class="btn btn-primary" (click)="abrirFormulario()">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
+    </svg>
+    Nuevo Usuario
+  </button>
+</div>
+
+<!-- Alertas -->
+@if (mensajeExito) {
+  <div class="usr-alert usr-alert--success">{{ mensajeExito }}</div>
+}
+@if (mensajeError && !mostrarFormulario) {
+  <div class="usr-alert usr-alert--error">{{ mensajeError }}</div>
+}
+
+<!-- Tabla -->
+<div class="card">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Email</th>
+        <th>Empleado</th>
+        <th>Rol</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (u of usuarios; track u.id) {
+        <tr>
+          <td>{{ u.username }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.nombre_empleado || '—' }}</td>
+          <td>
+            @if (editandoRolId === u.id) {
+              <div class="usr-rol-edit">
+                <select class="form-select usr-select-sm"
+                        [value]="rolSeleccionado"
+                        (change)="onRolChange($event)">
+                  @for (r of roles; track r.idRol) {
+                    <option [value]="r.idRol">{{ r.rolNombre }}</option>
+                  }
+                </select>
+                <button class="btn btn-sm btn-primary" (click)="confirmarCambioRol(u)" title="Confirmar">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="usr-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5"/>
+                  </svg>
+                </button>
+                <button class="btn btn-sm btn-outline" (click)="cancelarCambioRol()" title="Cancelar">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="usr-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+                  </svg>
+                </button>
+              </div>
+            } @else {
+              <span class="badge"
+                    [class.badge-blue]="u.roles[0] === 'Administrador'"
+                    [class.badge-green]="u.roles[0] === 'RRHH'"
+                    [class.badge-gray]="u.roles[0] === 'Empleado' || !u.roles[0]">
+                {{ u.roles[0] || 'Sin rol' }}
+              </span>
+            }
+          </td>
+          <td>
+            <span class="badge" [class.badge-green]="u.estado" [class.badge-red]="!u.estado">
+              {{ u.estado ? 'Activo' : 'Inactivo' }}
+            </span>
+          </td>
+          <td>
+            <div class="usr-actions">
+              @if (editandoRolId !== u.id) {
+                <button class="btn btn-sm btn-outline" (click)="iniciarCambioRol(u)" title="Cambiar rol">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="usr-icon">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z"/>
+                  </svg>
+                  Rol
+                </button>
+              }
+              <button class="btn btn-sm"
+                      [class.btn-outline]="u.estado"
+                      [class.btn-primary]="!u.estado"
+                      (click)="toggleEstado(u)"
+                      [title]="u.estado ? 'Desactivar' : 'Activar'">
+                {{ u.estado ? 'Desactivar' : 'Activar' }}
+              </button>
+            </div>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="6" class="usr-empty">No hay usuarios registrados.</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+<!-- Modal: Crear Usuario -->
+@if (mostrarFormulario) {
+  <div class="usr-overlay" (click)="cerrarFormulario()">
+    <div class="usr-modal" (click)="$event.stopPropagation()">
+      <div class="usr-modal__header">
+        <h3 class="usr-modal__title">Nuevo Usuario</h3>
+        <button class="btn btn-ghost usr-modal__close" (click)="cerrarFormulario()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="usr-icon">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="guardar()" class="usr-modal__body">
+
+        <div class="usr-form-group">
+          <label class="form-label">Nombre de usuario *</label>
+          <input formControlName="username" type="text" class="form-input"
+                 [class.usr-input--error]="campo('username')?.invalid && campo('username')?.touched"
+                 placeholder="ej. jperez" />
+          @if (campo('username')?.errors?.['required'] && campo('username')?.touched) {
+            <span class="usr-error">El nombre de usuario es requerido.</span>
+          }
+          @if (campo('username')?.errors?.['minlength'] && campo('username')?.touched) {
+            <span class="usr-error">Mínimo 3 caracteres.</span>
+          }
+        </div>
+
+        <div class="usr-form-group">
+          <label class="form-label">Email *</label>
+          <input formControlName="email" type="email" class="form-input"
+                 [class.usr-input--error]="campo('email')?.invalid && campo('email')?.touched"
+                 placeholder="usuario@empresa.com" />
+          @if (campo('email')?.errors?.['required'] && campo('email')?.touched) {
+            <span class="usr-error">El email es requerido.</span>
+          }
+          @if (campo('email')?.errors?.['email'] && campo('email')?.touched) {
+            <span class="usr-error">Ingrese un email válido.</span>
+          }
+        </div>
+
+        <div class="usr-form-group">
+          <label class="form-label">Contraseña *</label>
+          <input formControlName="password" type="password" class="form-input"
+                 [class.usr-input--error]="campo('password')?.invalid && campo('password')?.touched"
+                 placeholder="Mínimo 6 caracteres" />
+          @if (campo('password')?.errors?.['required'] && campo('password')?.touched) {
+            <span class="usr-error">La contraseña es requerida.</span>
+          }
+          @if (campo('password')?.errors?.['minlength'] && campo('password')?.touched) {
+            <span class="usr-error">Mínimo 6 caracteres.</span>
+          }
+        </div>
+
+        <div class="usr-form-group">
+          <label class="form-label">ID de Empleado *</label>
+          <input formControlName="id_empleado" type="number" class="form-input"
+                 [class.usr-input--error]="campo('id_empleado')?.invalid && campo('id_empleado')?.touched"
+                 placeholder="ID del empleado en el sistema" />
+          @if (campo('id_empleado')?.errors?.['required'] && campo('id_empleado')?.touched) {
+            <span class="usr-error">El ID de empleado es requerido.</span>
+          }
+        </div>
+
+        <div class="usr-form-group">
+          <label class="form-label">Rol *</label>
+          <select formControlName="id_rol" class="form-select"
+                  [class.usr-input--error]="campo('id_rol')?.invalid && campo('id_rol')?.touched">
+            <option [ngValue]="null" disabled>Seleccione un rol</option>
+            @for (r of roles; track r.idRol) {
+              <option [ngValue]="r.idRol">{{ r.rolNombre }}</option>
+            }
+          </select>
+          @if (campo('id_rol')?.errors?.['required'] && campo('id_rol')?.touched) {
+            <span class="usr-error">Debe seleccionar un rol.</span>
+          }
+        </div>
+
+        @if (mensajeError) {
+          <div class="usr-alert usr-alert--error">{{ mensajeError }}</div>
+        }
+
+        <div class="usr-modal__footer">
+          <button type="button" class="btn btn-outline" (click)="cerrarFormulario()">Cancelar</button>
+          <button type="submit" class="btn btn-primary" [disabled]="guardando">
+            {{ guardando ? 'Guardando...' : 'Crear Usuario' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

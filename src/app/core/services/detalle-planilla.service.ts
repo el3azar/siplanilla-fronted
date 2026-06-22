@@ -18,4 +18,8 @@ export class DetallePlanillaService {
   getById(id: number): Observable<DetallePlanilla> {
     return this.http.get<any>(`${this.url}/${id}`).pipe(map(r => r.data));
   }
+
+  getMisBoletas(): Observable<DetallePlanilla[]> {
+    return this.http.get<any>(`${this.url}/mis-boletas`).pipe(map(r => r.data));
+  }
 }

@@ -3,7 +3,6 @@ import { LoginComponent } from './components/auth/login/login.component';
 import { RecuperarPasswordComponent } from './components/auth/recuperar-password/recuperar-password.component';
 import { DesbloquearComponent } from './components/auth/desbloquear/desbloquear.component';
 import { MainLayoutComponent } from './components/layout/main-layout/main-layout.component';
-import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { ListaEmpleadosComponent } from './components/empleados/lista-empleados/lista-empleados.component';
 import { FormEmpleadoComponent } from './components/empleados/form-empleado/form-empleado.component';
 import { EstructuraOrganizativaComponent } from './components/estructura-organizativa/estructura-organizativa.component';
@@ -17,6 +16,7 @@ import { EmpresaComponent } from './components/empresa/empresa.component';
 import { UsuariosComponent } from './components/administracion/usuarios/usuarios.component';
 import { RolesComponent } from './components/administracion/roles/roles.component';
 import { AuthGuard } from './core/guards/auth.guard';
+import { RoleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/login', pathMatch: 'full' },
@@ -28,21 +28,85 @@ export const routes: Routes = [
     component: MainLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      { path: 'dashboard', component: DashboardComponent },
-      { path: 'empleados', component: ListaEmpleadosComponent },
-      { path: 'empleados/nuevo', component: FormEmpleadoComponent },
-      { path: 'empleados/editar/:id', component: FormEmpleadoComponent },
-      { path: 'estructura-organizativa', component: EstructuraOrganizativaComponent },
-      { path: 'puestos-salarios', component: PuestosSalariosComponent },
-      { path: 'catalogos', component: CatalogosComponent },
-      { path: 'planilla', component: ListaPlanillasComponent },
-      { path: 'planilla/:id', component: DetallePlanillaComponent },
-      { path: 'centros-costo', component: CentrosCostoComponent },
-      { path: 'boletas-pago', component: BoletasPagoComponent },
-      { path: 'empresa', component: EmpresaComponent },
-      { path: 'administracion/usuarios', component: UsuariosComponent },
-      { path: 'administracion/roles', component: RolesComponent },
+      {
+        path: 'empleados',
+        component: ListaEmpleadosComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador', 'RRHH'] }
+      },
+      {
+        path: 'empleados/nuevo',
+        component: FormEmpleadoComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador', 'RRHH'] }
+      },
+      {
+        path: 'empleados/editar/:id',
+        component: FormEmpleadoComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador', 'RRHH'] }
+      },
+      {
+        path: 'estructura-organizativa',
+        component: EstructuraOrganizativaComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador'] }
+      },
+      {
+        path: 'puestos-salarios',
+        component: PuestosSalariosComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador'] }
+      },
+      {
+        path: 'catalogos',
+        component: CatalogosComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador'] }
+      },
+      {
+        path: 'planilla',
+        component: ListaPlanillasComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador', 'RRHH'] }
+      },
+      {
+        path: 'planilla/:id',
+        component: DetallePlanillaComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador', 'RRHH'] }
+      },
+      {
+        path: 'centros-costo',
+        component: CentrosCostoComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador'] }
+      },
+      {
+        path: 'boletas-pago',
+        component: BoletasPagoComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador', 'RRHH', 'Empleado'] }
+      },
+      {
+        path: 'empresa',
+        component: EmpresaComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador'] }
+      },
+      {
+        path: 'administracion/usuarios',
+        component: UsuariosComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador'] }
+      },
+      {
+        path: 'administracion/roles',
+        component: RolesComponent,
+        canActivate: [RoleGuard],
+        data: { roles: ['Administrador'] }
+      },
     ]
   },
-  { path: '**', redirectTo: '/dashboard' }
+  { path: '**', redirectTo: '/boletas-pago' }
 ];

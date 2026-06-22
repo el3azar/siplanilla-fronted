@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { DetallePlanillaService } from '../../core/services/detalle-planilla.service';
 import { DescuentoService } from '../../core/services/descuento.service';
 import { IngresoService } from '../../core/services/ingreso.service';
+import { AuthService } from '../../core/services/auth.service';
 import { DetallePlanilla } from '../../core/models/detalle-planilla.model';
 import { Descuento } from '../../core/models/descuento.model';
 import { Ingreso } from '../../core/models/ingreso.model';
@@ -28,13 +29,14 @@ export class BoletasPagoComponent implements OnInit {
     private detallePlanillaService: DetallePlanillaService,
     private descuentoService: DescuentoService,
     private ingresoService: IngresoService,
+    private authService: AuthService,
     private cdr: ChangeDetectorRef
   ) {}
 
   private normalizar(texto: string): string {
     return texto
       .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[̀-ͯ]/g, '')
       .toLowerCase()
       .trim();
   }
@@ -54,8 +56,11 @@ export class BoletasPagoComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.detallePlanillaService.getAll().subscribe(data => {
-      console.log('Detalles recibidos:', data); // ← revisá esto en consola
+    const fuente$ = this.authService.isEmpleado()
+      ? this.detallePlanillaService.getMisBoletas()
+      : this.detallePlanillaService.getAll();
+
+    fuente$.subscribe(data => {
       this.detalles = data;
       this.cdr.markForCheck();
     });
@@ -98,7 +103,6 @@ export class BoletasPagoComponent implements OnInit {
   }
 
   cerrarModal(event: MouseEvent) {
-    // cierra si se hace click en el fondo oscuro, no en el contenido
     if ((event.target as HTMLElement).classList.contains('bol-modal-overlay')) {
       this.cerrarBoleta();
     }
