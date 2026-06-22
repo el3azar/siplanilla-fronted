@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Ingreso } from '../models/ingreso.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class IngresoService {
 
-  private url = 'http://localhost:8080/api/planilla/ingresos';
+  private url = `${environment.apiUrl}/planilla/ingresos`;
 
   constructor(private http: HttpClient) {}
 

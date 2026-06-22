@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TipoIngreso } from '../models/tipo-ingreso.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TipoIngresoService {
 
-  private url = 'http://localhost:8080/api/catalogos/tipos-ingreso';
+  private url = `${environment.apiUrl}/catalogos/tipos-ingreso`;
 
   constructor(private http: HttpClient) {}
 
