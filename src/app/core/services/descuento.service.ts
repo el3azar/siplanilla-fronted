@@ -3,11 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Descuento } from '../models/descuento.model';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class DescuentoService {
 
-  private url = 'http://localhost:8080/api/planilla/descuentos';
+  private url = `${environment.apiUrl}/planilla/descuentos`;
 
   constructor(private http: HttpClient) {}
 
