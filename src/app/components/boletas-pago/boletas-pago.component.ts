@@ -76,18 +76,28 @@ export class BoletasPagoComponent implements OnInit {
     this.ingresos = [];
     this.descuentos = [];
 
-    this.ingresoService.getByDetalle(detalle.idDetallePlanilla).subscribe(data => {
-      this.ingresos = data;
-      this.cdr.markForCheck();
+    this.ingresoService.getByDetalle(detalle.idDetallePlanilla).subscribe({
+      next: data => {
+        this.ingresos = data;
+        this.cdr.markForCheck();
+      },
+      error: err => console.error('Error cargando ingresos:', err.status, err.message)
     });
 
-    this.descuentoService.getByDetalle(detalle.idDetallePlanilla).subscribe(data => {
-      this.descuentos = data;
-      this.cargando = false;
-      this.cdr.markForCheck();
-      setTimeout(() => {
-        document.getElementById('boleta-print')?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
+    this.descuentoService.getByDetalle(detalle.idDetallePlanilla).subscribe({
+      next: data => {
+        this.descuentos = data;
+        this.cargando = false;
+        this.cdr.markForCheck();
+        setTimeout(() => {
+          document.getElementById('boleta-print')?.scrollIntoView({ behavior: 'smooth' });
+        }, 100);
+      },
+      error: err => {
+        this.cargando = false;
+        console.error('Error cargando descuentos:', err.status, err.message);
+        this.cdr.markForCheck();
+      }
     });
   }
 
