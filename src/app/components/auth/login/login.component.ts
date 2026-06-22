@@ -76,9 +76,8 @@ export class LoginComponent {
       },
       error: (error) => {
         this.verificandoUsername.set(false);
-        this.userNotFound.set(true);
-        this.errorMessage.set(' No se pudo verificar el usuario');
-        console.error('Error verificando estado:', error);
+        // El endpoint aún no está disponible — no bloquear el login
+        console.warn('verificarEstado no disponible:', error);
       }
     });
   }
