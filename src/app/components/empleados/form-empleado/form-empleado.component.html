@@ -50,11 +50,13 @@
       </div>
       <div class="fe-field">
         <label class="form-label">NUP</label>
-        <input type="text" class="form-input" placeholder="NUP-000000000" formControlName="empNup" />
+        <input type="text" class="form-input" placeholder="000000000" formControlName="empNup"
+               [appMaskNUP]="true" maxlength="9" />
       </div>
       <div class="fe-field">
         <label class="form-label">ISSS</label>
-        <input type="text" class="form-input" placeholder="000000000" formControlName="empIsss" />
+        <input type="text" class="form-input" placeholder="000000000" formControlName="empIsss"
+               [appMaskISSS]="true" maxlength="9" />
       </div>
       <div class="fe-field">
         <label class="form-label">Fecha de Nacimiento</label>

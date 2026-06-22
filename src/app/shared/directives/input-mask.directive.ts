@@ -1,12 +1,14 @@
 import { Directive, HostListener, ElementRef, Input } from '@angular/core';
 
 @Directive({
-  selector: '[appMaskDUI], [appMaskNIT]',
+  selector: '[appMaskDUI], [appMaskNIT], [appMaskNUP], [appMaskISSS]',
   standalone: true
 })
 export class InputMaskDirective {
   @Input() appMaskDUI: boolean = false;
   @Input() appMaskNIT: boolean = false;
+  @Input() appMaskNUP: boolean = false;
+  @Input() appMaskISSS: boolean = false;
 
   constructor(private el: ElementRef) {}
 
@@ -19,6 +21,10 @@ export class InputMaskDirective {
       value = this.formatDUI(value);
     } else if (this.appMaskNIT) {
       value = this.formatNIT(value);
+    } else if (this.appMaskNUP) {
+      value = value.slice(0, 9);
+    } else if (this.appMaskISSS) {
+      value = value.slice(0, 9);
     }
 
     // Actualizar el valor del input

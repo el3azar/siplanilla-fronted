@@ -20,8 +20,12 @@ export class ListaEmpleadosComponent implements OnInit {
   busqueda = signal('');
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
-  alertaMessage = signal<string | null>(null);
+  mensajeExito = signal<string | null>(null);
+  mensajeError = signal<string | null>(null);
   empleados = signal<EmpleadoDisplay[]>([]);
+
+  mostrarConfirmacion = false;
+  empleadoPendienteId: number | null = null;
 
   constructor(private empleadoService: EmpleadoService) {}
 
@@ -82,37 +86,57 @@ export class ListaEmpleadosComponent implements OnInit {
     return this.empleados().filter(e => !e.emp_estado).length;
   }
 
-  desactivarEmpleado(id: number, event: Event): void {
+  pedirConfirmacionDesactivar(id: number, event: Event): void {
     event.preventDefault();
-    
-    if (!confirm('¿Está seguro de que desea desactivar este empleado?')) {
-      return;
-    }
+    this.empleadoPendienteId = id;
+    this.mostrarConfirmacion = true;
+  }
+
+  cancelarConfirmacion(): void {
+    this.mostrarConfirmacion = false;
+    this.empleadoPendienteId = null;
+  }
+
+  confirmarDesactivar(): void {
+    if (!this.empleadoPendienteId) return;
+    const id = this.empleadoPendienteId;
+    this.mostrarConfirmacion = false;
+    this.empleadoPendienteId = null;
 
     this.empleadoService.desactivarEmpleado(id).subscribe({
       next: () => {
         this.cargarEmpleados();
+        this.mostrarExito('Empleado desactivado correctamente.');
       },
-      error: (error) => {
-        console.error('Error al desactivar empleado:', error);
-        this.alertaMessage.set('❌ Error al desactivar el empleado');
-        setTimeout(() => this.alertaMessage.set(null), 3000);
+      error: () => {
+        this.mostrarError('Error al desactivar el empleado.');
       }
     });
   }
 
   activarEmpleado(id: number, event: Event): void {
     event.preventDefault();
-    
+
     this.empleadoService.activarEmpleado(id).subscribe({
       next: () => {
         this.cargarEmpleados();
+        this.mostrarExito('Empleado activado correctamente.');
       },
-      error: (error) => {
-        console.error('Error al activar empleado:', error);
-        this.alertaMessage.set('❌ Error al activar el empleado');
-        setTimeout(() => this.alertaMessage.set(null), 3000);
+      error: () => {
+        this.mostrarError('Error al activar el empleado.');
       }
     });
+  }
+
+  private mostrarExito(msg: string): void {
+    this.mensajeExito.set(msg);
+    this.mensajeError.set(null);
+    setTimeout(() => this.mensajeExito.set(null), 4000);
+  }
+
+  private mostrarError(msg: string): void {
+    this.mensajeError.set(msg);
+    this.mensajeExito.set(null);
+    setTimeout(() => this.mensajeError.set(null), 5000);
   }
 }
