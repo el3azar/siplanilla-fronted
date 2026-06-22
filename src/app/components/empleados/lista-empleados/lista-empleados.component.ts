@@ -20,6 +20,7 @@ export class ListaEmpleadosComponent implements OnInit {
   busqueda = signal('');
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
+  alertaMessage = signal<string | null>(null);
   empleados = signal<EmpleadoDisplay[]>([]);
 
   constructor(private empleadoService: EmpleadoService) {}
@@ -94,7 +95,8 @@ export class ListaEmpleadosComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al desactivar empleado:', error);
-        alert('Error al desactivar el empleado');
+        this.alertaMessage.set('❌ Error al desactivar el empleado');
+        setTimeout(() => this.alertaMessage.set(null), 3000);
       }
     });
   }
@@ -108,7 +110,8 @@ export class ListaEmpleadosComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error al activar empleado:', error);
-        alert('Error al activar el empleado');
+        this.alertaMessage.set('❌ Error al activar el empleado');
+        setTimeout(() => this.alertaMessage.set(null), 3000);
       }
     });
   }

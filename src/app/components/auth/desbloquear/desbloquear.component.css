@@ -260,7 +260,29 @@
   color: var(--muted-foreground);
   font-size: 0.875rem;
 }
+/* Alertas personalizadas */
+.alerta-warning {
+  background-color: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  color: #92400e;
+  font-size: 0.95rem;
+  font-weight: 500;
+  animation: slideDown 0.3s ease-out;
+}
 
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 /* Responsive */
 @media (max-width: 640px) {
   .desbloqueo-card {

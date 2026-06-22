@@ -54,6 +54,14 @@ export class AuthService {
     );
   }
 
+  /**
+   * Verificar estado de la cuenta antes de login
+   * GET /v1/auth/verificar-estado/{username}
+   */
+  verificarEstado(username: string): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/verificar-estado/${username}`);
+  }
+
   logout(): void {
     this.removeToken();
     this.removeUser();

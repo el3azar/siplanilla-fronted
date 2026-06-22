@@ -15,6 +15,7 @@ export class DesbloquearComponent implements OnInit {
   token: string = '';
   username: string = '';
   mensaje = signal<string | null>(null);
+  alertaMessage = signal<string | null>(null);
   exito = signal(false);
   cargando = signal(true);
   mostrarFormularioNuevo = signal(false);
@@ -45,17 +46,17 @@ export class DesbloquearComponent implements OnInit {
       next: (response) => {
         if (response.success) {
           this.exito.set(true);
-          this.mensaje.set('✅ Tu cuenta ha sido desbloqueada correctamente. Ya puedes iniciar sesión.');
+          this.mensaje.set(' Tu cuenta ha sido desbloqueada correctamente. Ya puedes iniciar sesión.');
         } else {
           this.exito.set(false);
-          this.mensaje.set(`❌ ${response.message}`);
+          this.mensaje.set(` ${response.message}`);
           this.mostrarFormularioNuevo.set(true);
         }
         this.cargando.set(false);
       },
       error: (error) => {
         this.exito.set(false);
-        this.mensaje.set(`❌ ${error.error?.message || 'Error al desbloquear la cuenta'}`);
+        this.mensaje.set(` ${error.error?.message || 'Error al desbloquear la cuenta'}`);
         this.mostrarFormularioNuevo.set(true);
         this.cargando.set(false);
       }
@@ -64,7 +65,8 @@ export class DesbloquearComponent implements OnInit {
 
   solicitarNuevoToken(): void {
     if (!this.username.trim()) {
-      alert('Por favor ingresa tu nombre de usuario');
+      this.alertaMessage.set('⚠️ Por favor ingresa tu nombre de usuario');
+      setTimeout(() => this.alertaMessage.set(null), 3000);
       return;
     }
 
