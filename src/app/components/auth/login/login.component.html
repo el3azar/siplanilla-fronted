@@ -13,7 +13,7 @@
     </div>
 
     <!-- Form -->
-    <form class="login-form" (submit)="onLogin(); $event.preventDefault()">
+    <form class="login-form" (submit)="$event.preventDefault(); onLogin()">
 
       @if (errorMessage()) {
         <div class="error-message">
